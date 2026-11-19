@@ -1,0 +1,26 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+words.txt
+secrets.txt
+
+# Byte-compiled / cache / distribution artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.coverage
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

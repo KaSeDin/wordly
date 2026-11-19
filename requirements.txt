@@ -1,0 +1,2 @@
+python-dotenv==1.2.4
+wonderwords==3.0.1
