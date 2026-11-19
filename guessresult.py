@@ -3,7 +3,7 @@ from outcome import Outcome,Symbol
 
 class GuessResult:
 
-    def __init__(self,guess:str,secret:str,state:State=State.UNMATCHED):
+    def __init__(self,guess:str,secret:str,state:State=State.NOT_STARTED):
         self.guess=guess
         self.state=state
         self.outcomes=[]
@@ -30,6 +30,9 @@ class GuessResult:
                     map[secret[i]]=1
         if match:
             self.state=State.MATCHED
+            return 
+        else:
+            self.state=State.UNMATCHED
         for i in range(len):
             if self.outcomes[i]==Outcome.CORRECT:
                 continue
