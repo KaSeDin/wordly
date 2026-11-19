@@ -9,21 +9,24 @@ if str(ROOT_DIR) not in sys.path:
 import config as config_module
 from game import Game
 from state import Result, State
-
+from history import History
 
 class TestGame(unittest.TestCase):
     def setUp(self):
-        self.test_file = Path(__file__).resolve().parent / "test_game_secrets.txt"
-        self.test_file.write_text("", encoding="utf-8")
 
+        self.test_file = Path(__file__).resolve().parent / "test_game_secrets.txt"
+        self.history_file=Path(__file__).resolve().parent / "history.json"
+        self.test_file.write_text("", encoding="utf-8")
         self.cfg = config_module.Config(
             secrets_file=self.test_file,
             word_length=5,
             word_count=3,
             max_guesses=6,
+            history_file=self.history_file
         )
+        self.history=History(self.cfg)
         self.secret = "crane"
-        self.game = Game(self.secret, self.cfg)
+        self.game = Game(self.secret, self.cfg,self.history)
 
     def tearDown(self):
         if self.test_file.exists():
@@ -57,8 +60,9 @@ class TestGame(unittest.TestCase):
             word_length=5,
             word_count=3,
             max_guesses=2,
+            history_file=self.history_file
         )
-        game = Game(self.secret, cfg)
+        game = Game(self.secret, cfg,self.history)
         game.make_guess("plant")
         game.make_guess("crane")
         self.assertEqual(game.guess_count, 2)
@@ -70,8 +74,9 @@ class TestGame(unittest.TestCase):
             word_length=5,
             word_count=3,
             max_guesses=3,
+            history_file=self.history_file
         )
-        game = Game(self.secret, cfg)
+        game = Game(self.secret, cfg,self.history)
         for word in ["plant", "bongo", "brick"]:
             game.make_guess(word)
         self.assertEqual(game.guess_count, 3)
@@ -90,8 +95,9 @@ class TestGame(unittest.TestCase):
             word_length=5,
             word_count=3,
             max_guesses=1,
+            history_file=self.history_file
         )
-        game = Game(self.secret, cfg)
+        game = Game(self.secret, cfg,self.history)
         game.make_guess("plant")
         self.assertIs(game.result, Result.LOSS)
         with self.assertRaises(Exception):

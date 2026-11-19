@@ -1,16 +1,15 @@
 from state import State,Result
 from guessresult import GuessResult
-from history import History 
 
 class Game:
 
-    def __init__(self,secret:str,cfg):
+    def __init__(self,secret:str,cfg,history):
         self.secret=secret
         self.cfg=cfg
         self.guess_count=0
         self.result=Result.UNFINISHED
         self.guesses=[]
-        self.history=History(cfg)
+        self.history=history
         self.history.update_stats(self.secret,self)
 
     def make_guess(self,guess:str):
