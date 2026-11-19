@@ -1,6 +1,7 @@
 from state import State,Result
 from guessresult import GuessResult
-import config
+from history import History 
+
 class Game:
 
     def __init__(self,secret:str,cfg):
@@ -9,6 +10,8 @@ class Game:
         self.guess_count=0
         self.result=Result.UNFINISHED
         self.guesses=[]
+        self.history=History(cfg)
+        self.history.update_stats(self.secret,self)
 
     def make_guess(self,guess:str):
         if self.result!=Result.UNFINISHED:
@@ -20,3 +23,5 @@ class Game:
             self.result=Result.WIN
         elif self.guess_count>=self.cfg.max_guesses:
             self.result=Result.LOSS
+        self.history.update_stats(self.secret,self,guess_result)
+        
