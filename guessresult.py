@@ -38,7 +38,3 @@ class GuessResult:
                 map[self.guess[i]]-=1
                 if map[self.guess[i]]==0:
                     del map[self.guess[i]]
-        
-print(GuessResult("apple","apple"))
-print(GuessResult("apple","palpe"))
-
