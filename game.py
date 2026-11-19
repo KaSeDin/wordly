@@ -20,10 +20,3 @@ class Game:
             self.result=Result.WIN
         elif self.guess_count>=self.cfg.max_guesses:
             self.result=Result.LOSS
-        print(guess_result)
-
-cfg=config.config
-temp=Game("apple",cfg)
-for i in range(cfg.max_guesses):
-    guess=input("Enter your guess: ")
-    temp.make_guess(guess)
