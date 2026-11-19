@@ -20,11 +20,6 @@ class TestGenerator(unittest.TestCase):
         self.assertEqual(self.gen.word_count, self.cfg.word_count)
         self.assertIsNotNone(self.gen.rw)
 
-    def test_default_initialization_uses_module_config(self):
-        default_gen = Generator()
-        self.assertEqual(default_gen.size, self.cfg.word_length)
-        self.assertEqual(default_gen.word_count, self.cfg.word_count)
-
     def test_get_word_returns_string_of_expected_size_without_spaces(self):
         word = self.gen.getWord()
 

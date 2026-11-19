@@ -24,12 +24,16 @@ class Config:
     secrets_file:Path
     word_length:int
     word_count:int
+    max_guesses:int
+    history_file:Path
 
 def load_config() -> Config:
     return Config(
         secrets_file=_get_path("SECRETS_FILE"),
         word_length=_get_int("WORD_LENGTH"),
-        word_count=_get_int("WORD_COUNT")
+        word_count=_get_int("WORD_COUNT"),
+        max_guesses=_get_int("MAX_GUESSES"),
+        history_file=_get_path("HISTORY_FILE")
     )
 
 config=load_config()
