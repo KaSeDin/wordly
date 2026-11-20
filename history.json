@@ -1,0 +1,46 @@
+{
+  "snail": {
+    "guess": [
+      {
+        "guess": "aeiou",
+        "state": "UNMATCHED",
+        "outcomes": "\ud83d\udfe8\u2b1b\ud83d\udfe8\u2b1b\u2b1b",
+        "guessed_at": "2026-11-20T05:10:28.199450+00:00"
+      },
+      {
+        "guess": "aaaaa",
+        "state": "UNMATCHED",
+        "outcomes": "\u2b1b\u2b1b\ud83d\udfe9\u2b1b\u2b1b",
+        "guessed_at": "2026-11-20T05:10:33.604314+00:00"
+      },
+      {
+        "guess": "uslpt",
+        "state": "UNMATCHED",
+        "outcomes": "\u2b1b\ud83d\udfe8\ud83d\udfe8\u2b1b\u2b1b",
+        "guessed_at": "2026-11-20T05:10:46.861781+00:00"
+      },
+      {
+        "guess": "crnls",
+        "state": "UNMATCHED",
+        "outcomes": "\u2b1b\u2b1b\ud83d\udfe8\ud83d\udfe8\ud83d\udfe8",
+        "guessed_at": "2026-11-20T05:12:18.559916+00:00"
+      },
+      {
+        "guess": "ausln",
+        "state": "UNMATCHED",
+        "outcomes": "\ud83d\udfe8\u2b1b\ud83d\udfe8\ud83d\udfe8\ud83d\udfe8",
+        "guessed_at": "2026-11-20T05:12:39.724435+00:00"
+      },
+      {
+        "guess": "snail",
+        "state": "MATCHED",
+        "outcomes": "\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9",
+        "guessed_at": "2026-11-20T05:13:14.273154+00:00"
+      }
+    ],
+    "started_at": "2026-11-20T05:10:13.179531+00:00",
+    "secret": "snail",
+    "guess_count": 6,
+    "result": "WIN"
+  }
+}

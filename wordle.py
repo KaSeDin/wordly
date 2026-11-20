@@ -14,13 +14,15 @@ class Wordle:
             "quit":self.cmd_quit,
             "help":self.cmd_help,
             "load_secrets":self.cmd_load_secrets,
-            "new_game":self.cmd_start_game
+            "new_game":self.cmd_start_game,
+            "view_history":self.cmd_view_history
         }
         self.descriptions={
             "help":"Gives you list of commands that you can use outside game",
             "quit":"Quits from the game console",
             "load_secrets":"Load secrets into the dictionary for upcoming games",
-            "new_game":"Start a new game"
+            "new_game":"Start a new game",
+            "view_history":"View your past performance"
         }
 
     def cmd_quit(self):
@@ -40,6 +42,11 @@ class Wordle:
     def cmd_start_game(self):
         new_secret=self.secrets.get_secret()
         new_game=Game(new_secret,self.cfg,self.history)
+        return True
+
+    def cmd_view_history(self):
+        hist=self.history.print_history()
+        return True
 
     def execute(self,cmd)->bool:
         cmd=cmd.strip()
