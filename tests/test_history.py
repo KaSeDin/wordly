@@ -4,6 +4,8 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
@@ -14,6 +16,7 @@ from game import Game
 from guessresult import GuessResult
 from history import History
 from state import Result, State
+from wordle import Wordle
 
 
 class TestHistoryWithRealConfig(unittest.TestCase):
@@ -66,6 +69,25 @@ class TestHistoryWithRealConfig(unittest.TestCase):
             self.history.load_stats()
 
         self.assertIn("Failed to load history", str(ctx.exception))
+
+    def test_view_history_prints_saved_games(self) -> None:
+        self.history.save_stats({
+            "game-id": {
+                "secret": "apple",
+                "guess_count": 1,
+                "result": Result.WIN.name,
+                "guess": [],
+            }
+        })
+        wordle = Wordle.__new__(Wordle)
+        wordle.history = self.history
+        output = StringIO()
+
+        with redirect_stdout(output):
+            wordle.cmd_view_history()
+
+        self.assertIn("Game: game-id", output.getvalue())
+        self.assertIn("Secret: apple", output.getvalue())
 
 
 if __name__ == "__main__":

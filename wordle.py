@@ -1,4 +1,4 @@
-import config
+import config as config
 from history import History
 from secrets import Secrets
 from game import Game
@@ -41,11 +41,12 @@ class Wordle:
 
     def cmd_start_game(self):
         new_secret=self.secrets.get_secret()
-        new_game=Game(new_secret,self.cfg,self.history)
+        new_game=Game(new_secret,self.cfg,self.history,True)
         return True
 
     def cmd_view_history(self):
         hist=self.history.print_history()
+        print(hist if hist else "No games played yet.")
         return True
 
     def execute(self,cmd)->bool:
