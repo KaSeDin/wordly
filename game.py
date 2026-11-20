@@ -43,6 +43,14 @@ class Game:
             f"{self.cfg.max_guesses}, result={self.result.name})"
         )
 
+    @property
+    def is_won(self) -> bool:
+        return self.result is Result.WIN
+
+    @property
+    def is_over(self) -> bool:
+        return self.result.is_terminal
+
     @staticmethod
     def _make_guess(game: "Game", guess: str) -> GuessResult:
         validate_not_none("game", game)

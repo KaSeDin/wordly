@@ -74,8 +74,16 @@ class Wordle:
         ]
         wins = sum(game.get("result") == Result.WIN.name for game in games)
         losses = sum(game.get("result") == Result.LOSS.name for game in games)
+        current_streak = 0
+        best_streak = 0
         guess_counts = []
         for game in games:
+            if game.get("result") == Result.WIN.name:
+                current_streak += 1
+                best_streak = max(best_streak, current_streak)
+            else:
+                current_streak = 0
+
             guesses = game.get("guess", [])
             if not isinstance(guesses, list):
                 guesses = []
@@ -95,6 +103,8 @@ class Wordle:
         print(f"Losses: {losses}")
         print(f"Win rate: {win_rate:.1f}%")
         print(f"Average guesses: {average_guesses:.2f}")
+        print(f"Current streak: {current_streak}")
+        print(f"Best streak: {best_streak}")
         return True
 
     def cmd_reset_stats(self):
