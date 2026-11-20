@@ -59,6 +59,16 @@ class Config:
             history_file=cls._env_path("HISTORY_FILE"),
         )
 
+    def __str__(self) -> str:
+        return (
+            "Configuration:\n"
+            f"  Secrets File : {self.secrets_file}\n"
+            f"  History File : {self.history_file}\n"
+            f"  Word Length  : {self.word_length}\n"
+            f"  Word Count   : {self.word_count}\n"
+            f"  Max Guesses  : {self.max_guesses}"
+        )
+
 def load_config() -> Config:
     try:
         return Config.from_env()
