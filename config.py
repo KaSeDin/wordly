@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from dataclasses import dataclass
+from validators import validate_positive_int,validate_non_empty_path
 
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
@@ -16,22 +17,12 @@ class Config:
     history_file:Path
 
     def __post_init__(self) -> None:
-        self._validate_positive_int("word_length", self.word_length)
-        self._validate_positive_int("word_count", self.word_count)
-        self._validate_positive_int("max_guesses", self.max_guesses)
-        self._validate_path("secrets_file", self.secrets_file)
-        self._validate_path("history_file", self.history_file)
-        
-    @staticmethod
-    def _validate_positive_int(field_name: str, value: int) -> None:
-        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-            raise ValueError(f"Config '{field_name}' must be a positive integer, got {value!r}")
-
-    @staticmethod
-    def _validate_path(field_name: str, value: Path) -> None:
-        if not isinstance(value, Path) or not str(value).strip():
-            raise ValueError(f"Config '{field_name}' must be a valid non-empty Path, got {value!r}")
-        
+        validate_positive_int("word_length", self.word_length)
+        validate_positive_int("word_count", self.word_count)
+        validate_positive_int("max_guesses", self.max_guesses)
+        validate_non_empty_path("secrets_file", self.secrets_file)
+        validate_non_empty_path("history_file", self.history_file)
+            
     @staticmethod
     def _env_int(name: str) -> int:
         raw = os.getenv(name)
