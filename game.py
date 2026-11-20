@@ -9,7 +9,7 @@ class Game:
     secret:str
     cfg:Any
     history:Any
-    auto_start: bool = field(default=True, repr=False)
+    auto_start: bool = field(default=False, repr=False)
     guess_count:int = field(default=0,init=False)
     result: Result = field(default=Result.UNFINISHED, init=False)
     guesses: list[GuessResult] = field(default_factory=list, init=False)
@@ -17,7 +17,7 @@ class Game:
     def __post_init__(self) -> None:
         validate_not_none("cfg",self.cfg)
         validate_not_none("history",self.history)
-        validate_isinstance("secret",self.secret,int)
+        validate_isinstance("secret",self.secret,str)
         validate_positive_int("cfg.max_guesses",self.cfg.max_guesses)
 
         self.secret = self.secret.strip().lower()
@@ -83,3 +83,26 @@ class Game:
             raise
         except Exception as err:
             raise RuntimeError(f"Game loop terminated unexpectedly: {err}") from err
+
+    @classmethod
+    def from_config(
+        cls,
+        cfg: Any,
+        secret: str | None = None,
+        history: Any | None = None,
+        auto_start: bool = True,
+    ) -> "Game":
+        validate_not_none("cfg", cfg)
+        try:
+            resolved_secret = secret if secret is not None else Secrets(cfg).get_secret()
+            resolved_history = history if history is not None else History.from_config(cfg)
+            return cls(
+                secret=resolved_secret,
+                cfg=cfg,
+                history=resolved_history,
+                auto_start=auto_start,
+            )
+        except (ValueError, RuntimeError):
+            raise
+        except Exception as err:
+            raise RuntimeError(f"Failed to initialize Game from config: {err}") from err

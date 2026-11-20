@@ -93,7 +93,7 @@ class History:
             raise ValueError("Game key must be a non-empty string")
 
         data = self.load_stats()
-        entry = data.setdefault(key, {"guess": [], "started_at": self._get_timestamp()})
+        entry = data.get(key, {"guess": [], "started_at": self._get_timestamp()})
 
         if game is not None:
             try:
