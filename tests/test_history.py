@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from io import StringIO
+from unittest.mock import patch
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
@@ -88,6 +89,46 @@ class TestHistoryWithRealConfig(unittest.TestCase):
 
         self.assertIn("Game: game-id", output.getvalue())
         self.assertIn("Secret: apple", output.getvalue())
+
+    def test_stats_include_all_saved_games(self) -> None:
+        self.history.save_stats({
+            "win": {"result": Result.WIN.name, "guess_count": 4},
+            "loss": {"result": Result.LOSS.name, "guess_count": 6},
+            "unfinished": {"result": Result.UNFINISHED.name, "guess_count": 2},
+            "aborted": {"result": Result.ABORT.name, "guess_count": 1},
+        })
+        wordle = Wordle.__new__(Wordle)
+        wordle.history = self.history
+        output = StringIO()
+
+        with redirect_stdout(output):
+            wordle.cmd_stats()
+
+        self.assertIn("Games played: 4", output.getvalue())
+        self.assertIn("Wins: 1", output.getvalue())
+        self.assertIn("Losses: 1", output.getvalue())
+        self.assertIn("Win rate: 25.0%", output.getvalue())
+        self.assertIn("Average guesses: 3.25", output.getvalue())
+
+    def test_reset_stats_requires_confirmation(self) -> None:
+        self.history.save_stats({"game-id": {"result": Result.WIN.name}})
+        wordle = Wordle.__new__(Wordle)
+        wordle.history = self.history
+
+        with patch("builtins.input", return_value="no"):
+            wordle.cmd_reset_stats()
+
+        self.assertIn("game-id", self.history.load_stats())
+
+    def test_reset_stats_clears_history_after_confirmation(self) -> None:
+        self.history.save_stats({"game-id": {"result": Result.WIN.name}})
+        wordle = Wordle.__new__(Wordle)
+        wordle.history = self.history
+
+        with patch("builtins.input", return_value="yes"):
+            wordle.cmd_reset_stats()
+
+        self.assertEqual(self.history.load_stats(), {})
 
 
 if __name__ == "__main__":
