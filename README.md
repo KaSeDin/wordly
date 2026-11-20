@@ -57,7 +57,7 @@ During a game, these commands are available instead of a guess:
 | `new_game` | Start a game |
 | `load_secrets` | Generate and save secret words |
 | `view_history` | Display saved games |
-| `stats` | Show games played, wins, losses, win rate, and average guesses |
+| `stats` | Show games played, wins, losses, win rate, average guesses, and win streaks |
 | `reset_stats` | Clear saved history after confirmation |
 | `rules` | Display the rules |
 | `clear` | Clear the terminal |

@@ -78,6 +78,23 @@ class TestWordle(unittest.TestCase):
         self.assertIn("Win rate: 25.0%", output.getvalue())
         self.assertIn("Average guesses: 3.25", output.getvalue())
 
+    def test_stats_report_current_and_best_win_streaks(self) -> None:
+        self.wordle.history.load_stats.return_value = {
+            "win-1": {"result": Result.WIN.name, "guess_count": 1},
+            "win-2": {"result": Result.WIN.name, "guess_count": 2},
+            "win-3": {"result": Result.WIN.name, "guess_count": 3},
+            "loss": {"result": Result.LOSS.name, "guess_count": 6},
+            "win-4": {"result": Result.WIN.name, "guess_count": 1},
+            "win-5": {"result": Result.WIN.name, "guess_count": 2},
+        }
+        output = StringIO()
+
+        with redirect_stdout(output):
+            self.wordle.cmd_stats()
+
+        self.assertIn("Current streak: 2", output.getvalue())
+        self.assertIn("Best streak: 3", output.getvalue())
+
     def test_reset_stats_clears_history_after_confirmation(self) -> None:
         with patch("builtins.input", return_value="yes"):
             self.assertTrue(self.wordle.execute("reset_stats"))

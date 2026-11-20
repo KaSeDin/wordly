@@ -51,6 +51,8 @@ class TestGame(unittest.TestCase):
         self.assertIs(self.game.cfg, self.cfg)
         self.assertEqual(self.game.guess_count, 0)
         self.assertIs(self.game.result, Result.UNFINISHED)
+        self.assertFalse(self.game.is_won)
+        self.assertFalse(self.game.is_over)
         self.assertEqual(self.game.guesses, [])
 
     def test_single_incorrect_guess_stays_unfinished(self) -> None:
@@ -77,6 +79,8 @@ class TestGame(unittest.TestCase):
         self.assertEqual(len(self.game.guesses), 2)
         self.assertIs(self.game.guesses[-1].state, State.MATCHED)
         self.assertIs(self.game.result, Result.WIN)
+        self.assertTrue(self.game.is_won)
+        self.assertTrue(self.game.is_over)
 
     def test_winning_on_final_guess_sets_win_not_loss(self) -> None:
         for _ in range(self.cfg.max_guesses - 1):
@@ -91,6 +95,8 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.game.guess_count, self.cfg.max_guesses)
         self.assertEqual(len(self.game.guesses), self.cfg.max_guesses)
         self.assertIs(self.game.result, Result.LOSS)
+        self.assertFalse(self.game.is_won)
+        self.assertTrue(self.game.is_over)
 
     def test_guess_after_win_raises_runtime_error(self) -> None:
         Game._make_guess(self.game, self.secret)
