@@ -1,6 +1,6 @@
 from wonderwords import RandomWord
 from dataclasses import dataclass,field
-from validators import validate_positive_int
+from validators import validate_positive_int,validate_not_none,validate_has_attr
 from typing import Any
 
 @dataclass
@@ -9,10 +9,10 @@ class Generator:
     rw:RandomWord=field(default_factory=RandomWord,repr=False)
 
     def __post_init__(self) -> None:
+        validate_not_none("cfg",self.cfg)
         validate_positive_int("size", self.cfg.word_length)
         validate_positive_int("word_count", self.cfg.word_count)
-        if not hasattr(self.rw, "word"):
-            raise TypeError("rw must be a RandomWord instance with a .word() method")
+        validate_has_attr("rw",self.rw,"word",callable_required=True)
         
     def __str__(self)->str:
         return f"Generator(size={self.cfg.word_length}, word_count={self.cfg.word_count})"
