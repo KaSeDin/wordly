@@ -1,10 +1,13 @@
 import random
+from generator import Generator
 
 class Secrets:
 
     def __init__(self,cfg):
         self.words_path=cfg.secrets_file
         self.random=random.Random()
+        self.generator=Generator(cfg)
+
         
     def __str__(self) -> str:
         return f"Secrets(words_path={self.words_path})"
@@ -41,11 +44,11 @@ class Secrets:
     def write_secret(self, word: str) -> None:
         self._append_lines([word])
 
-    def load_secret(self, generator) -> None:
-        self._append_lines([generator.getWord()])
+    def load_secret(self) -> None:
+        self._append_lines([self.generator.getWord()])
 
-    def load_secrets(self, generator) -> None:
-        self._append_lines(generator.getWords())
+    def load_secrets(self) -> None:
+        self._append_lines(self.generator.getWords())
 
     def clear_secrets(self) -> None:
         if self.words_path.exists():
