@@ -1,6 +1,6 @@
 from dataclasses import InitVar, dataclass, field
 from validators import validate_isinstance
-from temp.state import State 
+from state import State 
 from outcome import Outcome
 
 @dataclass

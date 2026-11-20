@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 from validators import *
-from temp.state import State,Result
+from state import State,Result
 from guessresult import GuessResult
 
 @dataclass
@@ -46,7 +46,7 @@ class Game:
         validate_not_none("game", game)
         validate_isinstance("guess", guess, str)
 
-        if game.result != Result.UNFINISHED:
+        if game.result.is_terminal:
             raise RuntimeError("Game is already finished; create a new Game")
 
         cleaned_guess = guess.strip().lower()
@@ -64,7 +64,6 @@ class Game:
                 game.result = Result.LOSS
 
             game.history.update_stats(game.secret, game, guess_result)
-            print(guess_result)
             return guess_result
         except (ValueError, RuntimeError):
             raise
@@ -76,7 +75,7 @@ class Game:
         validate_not_none("game", game)
         try:
             for _ in range(game.cfg.max_guesses):
-                if game.result != Result.UNFINISHED:
+                if game.result.is_terminal:
                     break
                 new_guess = input().strip()
                 Game._make_guess(game, new_guess)
