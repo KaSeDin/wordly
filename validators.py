@@ -45,7 +45,10 @@ def validate_isinstance(
     allow_bool: bool = False,
 ) -> Any:
     """Validate that value is an instance of expected_type and return it."""
-    if not allow_bool and isinstance(value, bool):
+    expects_bool = expected_type is bool or (
+        isinstance(expected_type, tuple) and bool in expected_type
+    )
+    if not allow_bool and not expects_bool and isinstance(value, bool):
         raise TypeError(
             f"{field_name} must be an instance of {expected_type!r}, got bool ({value!r})"
         )
