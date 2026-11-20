@@ -30,7 +30,11 @@ class Result(Enum):
     @property
     def is_terminal(self) -> bool:
         """Whether the game has ended and no more guesses should be accepted."""
-        return self in (Result.WIN, Result.LOSS, Result.ABORT)
+        return self in (
+            Result.WIN,
+            Result.LOSS,
+            Result.ABORT,
+        )
 
     @property
     def label(self) -> str:

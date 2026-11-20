@@ -79,6 +79,7 @@ class Game:
         print("WORDLE CHALLENGE")
         print(f"Guess the {len(game.secret)}-letter word in {game.cfg.max_guesses} tries.")
         print("🟩 Correct  🟨 In the word, wrong spot  ⬛ Not in the word")
+        print("Commands: status, give_up, back")
         print(f"Status: {game.result.label}")
         print("=" * 40)
         try:
@@ -88,6 +89,26 @@ class Game:
             ):
                 print(f"\nAttempt {game.guess_count + 1}/{game.cfg.max_guesses}")
                 new_guess = input("Your guess: ").strip()
+                command = new_guess.lower()
+                if command == "status":
+                    remaining = game.cfg.max_guesses - game.guess_count
+                    print(f"Status: {game.result.label}")
+                    print(
+                        f"Guesses used: {game.guess_count}/{game.cfg.max_guesses}"
+                    )
+                    print(f"Guesses remaining: {remaining}")
+                    continue
+                if command == "give_up":
+                    game.result = Result.ABORT
+                    game.history.update_stats(game.game_id, game)
+                    print(f"Game aborted. The word was {game.secret.upper()}.")
+                    break
+                if command == "back":
+                    game.result = Result.UNFINISHED
+                    game.history.update_stats(game.game_id, game)
+                    print("Game saved as unfinished. Returning to the menu.")
+                    return
+
                 if len(new_guess) != len(game.secret):
                     print(
                         f"Guess must be exactly {len(game.secret)} letters long. "

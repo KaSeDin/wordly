@@ -123,6 +123,49 @@ class TestGame(unittest.TestCase):
         self.assertIn("Guess must be exactly", output.getvalue())
         self.assertIn("Brilliant! You solved it in 2 guesses!", output.getvalue())
 
+    def test_status_command_does_not_consume_a_guess(self) -> None:
+        output = StringIO()
+        with patch("builtins.input", side_effect=["status", "back"]), redirect_stdout(output):
+            Game(
+                secret=self.secret,
+                cfg=self.cfg,
+                history=self.history,
+                auto_start=True,
+            )
+
+        self.assertIn("Guesses used: 0/", output.getvalue())
+        self.assertIn("Guesses remaining:", output.getvalue())
+
+    def test_give_up_marks_game_aborted_and_reveals_secret(self) -> None:
+        output = StringIO()
+        with patch("builtins.input", return_value="give_up"), redirect_stdout(output):
+            game = Game(
+                secret=self.secret,
+                cfg=self.cfg,
+                history=self.history,
+                auto_start=True,
+            )
+
+        self.assertIs(game.result, Result.ABORT)
+        self.assertTrue(game.result.is_terminal)
+        self.assertIn(self.secret.upper(), output.getvalue())
+        saved_game = self.history.load_stats()[game.game_id]
+        self.assertEqual(saved_game["result"], Result.ABORT.name)
+
+    def test_back_saves_game_as_unfinished(self) -> None:
+        with patch("builtins.input", side_effect=[self.wrong_guess, "back"]):
+            game = Game(
+                secret=self.secret,
+                cfg=self.cfg,
+                history=self.history,
+                auto_start=True,
+            )
+
+        self.assertIs(game.result, Result.UNFINISHED)
+        saved_game = self.history.load_stats()[game.game_id]
+        self.assertEqual(saved_game["result"], Result.UNFINISHED.name)
+        self.assertEqual(saved_game["guess_count"], 1)
+
     def test_games_with_same_secret_keep_separate_history(self) -> None:
         Game._make_guess(self.game, self.wrong_guess)
         second_game = Game(
