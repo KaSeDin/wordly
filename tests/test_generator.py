@@ -33,8 +33,8 @@ class TestGenerator(unittest.TestCase):
     def test_initialization_matches_config(self):
         """Verify Generator attributes and string output match the loaded config."""
         self.assertIsInstance(self.gen, Generator)
-        self.assertEqual(self.gen.size, self.cfg.word_length)
-        self.assertEqual(self.gen.word_count, self.cfg.word_count)
+        self.assertEqual(self.gen.cfg.word_length, self.cfg.word_length)
+        self.assertEqual(self.gen.cfg.word_count, self.cfg.word_count)
         self.assertIsNotNone(self.gen.rw)
         self.assertEqual(
             str(self.gen),
