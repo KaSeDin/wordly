@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo,ZoneInfoNotFoundError
-from validators import validate_non_empty_path,validate_not_none
+from validators import validate_non_empty_path,validate_not_none,validate_isinstance
 
 @dataclass
 class History:
@@ -14,7 +14,8 @@ class History:
     def __post_init__(self) -> None:
         validate_not_none("cfg", self.cfg)
         validate_non_empty_path("cfg.history_file", self.cfg.history_file)
-        if not isinstance(self.tz_name, str) or not self.tz_name.strip():
+        validate_isinstance("tz_name",self.tz_name,str)
+        if not self.tz_name.strip():
             raise ValueError("tz_name must be a non-empty timezone string")
         try:
             ZoneInfo(self.tz_name)
@@ -62,8 +63,7 @@ class History:
         return datetime.now(timezone.utc).isoformat()
     
     def save_stats(self, data: dict[str, Any]) -> None:
-        if not isinstance(data, dict):
-            raise ValueError("History data must be a dictionary")
+        validate_isinstance("data",data,dict)
         try:
             self.history_path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.history_path, "w", encoding="utf-8") as f:
@@ -84,14 +84,12 @@ class History:
                 f"Failed to load history from '{self.history_path}': {err}"
             ) from err
 
-        if not isinstance(loaded, dict):
-            raise RuntimeError(
-                f"Corrupted history format in '{self.history_path}': expected JSON object"
-            )
+        validate_isinstance("loaded",loaded,dict)
         return loaded
 
     def update_stats(self, key: str, game: Any, new_guess: Any = None) -> None:
-        if not isinstance(key, str) or not key.strip():
+        validate_isinstance("key",key,str)
+        if not key.strip():
             raise ValueError("Game key must be a non-empty string")
 
         data = self.load_stats()
@@ -130,8 +128,7 @@ class History:
         try:
             if isinstance(data, str):
                 data = json.loads(data)
-            if not isinstance(data, dict):
-                raise ValueError("Report data must be a dictionary or JSON object string")
+            validate_isinstance("data",data,dict)
 
             lines: list[str] = []
             for game_id, details in data.items():

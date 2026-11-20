@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import random
 from generator import Generator
-from validators import validate_non_empty_path,validate_not_none,validate_has_attr
+from validators import validate_non_empty_path,validate_not_none,validate_has_attr,validate_isinstance
 from typing import Any
 
 @dataclass
@@ -73,7 +73,8 @@ class Secrets:
         return len(self.get_secrets())
 
     def write_secret(self, word: str) -> None:
-        if not isinstance(word, str) or not word.strip():
+        validate_isinstance("word",word,str)
+        if not word.strip():
             raise ValueError("Secret word must be a non-empty string")
         self._append_lines(self.words_path, [word.strip().lower()])
 

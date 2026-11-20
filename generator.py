@@ -1,6 +1,6 @@
 from wonderwords import RandomWord
 from dataclasses import dataclass,field
-from validators import validate_positive_int,validate_not_none,validate_has_attr
+from validators import validate_positive_int,validate_not_none,validate_has_attr,validate_isinstance
 from typing import Any
 
 @dataclass
@@ -34,8 +34,7 @@ class Generator:
             raise RuntimeError(
                 f"Failed to generate word of length {self.cfg.word_length}: {err}"
             ) from err
-        if not word or not isinstance(word, str):
-            raise RuntimeError(f"Unexpected word returned from RandomWord: {word!r}")
+        validate_isinstance("word",word,str)
         return word.strip().lower()
     
     def getWords(self)->list[str]:

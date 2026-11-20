@@ -36,3 +36,22 @@ def validate_has_attr(
     if callable_required and not callable(attr):
         raise TypeError(f"{field_name}.'{attr_name}' must be callable")
     return value
+
+def validate_isinstance(
+    field_name: str,
+    value: Any,
+    expected_type: type[T] | tuple[type[Any], ...],
+    *,
+    allow_bool: bool = False,
+) -> Any:
+    """Validate that value is an instance of expected_type and return it."""
+    if not allow_bool and isinstance(value, bool):
+        raise TypeError(
+            f"{field_name} must be an instance of {expected_type!r}, got bool ({value!r})"
+        )
+    if not isinstance(value, expected_type):
+        raise TypeError(
+            f"{field_name} must be an instance of {expected_type!r}, "
+            f"got {type(value).__name__} ({value!r})"
+        )
+    return value
