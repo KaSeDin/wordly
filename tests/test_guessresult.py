@@ -8,7 +8,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from guessresult import GuessResult
 from outcome import Outcome
-from temp.state import State
+from state import State
 
 
 class TestGuessResult(unittest.TestCase):

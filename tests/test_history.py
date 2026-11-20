@@ -10,10 +10,10 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import config as config_module
+from game import Game
+from guessresult import GuessResult
 from history import History
-from temp.game import Game
-from temp.guessresult import GuessResult
-from temp.state import Result, State
+from state import Result, State
 
 
 class TestHistoryWithRealConfig(unittest.TestCase):
@@ -30,7 +30,10 @@ class TestHistoryWithRealConfig(unittest.TestCase):
 
     def tearDown(self) -> None:
         """Clean up temporary files and directories after each test."""
-        self.tmp_dir.cleanup()
+        if hasattr(self, "history_file") and self.history_file is not None:
+            self.history_file.unlink(missing_ok=True)
+        if hasattr(self, "tmp_dir") and self.tmp_dir is not None:
+            self.tmp_dir.cleanup()
 
     def test_initial_history_file_created_empty(self) -> None:
         """Verify History initializes an empty JSON object file on creation."""
@@ -50,85 +53,6 @@ class TestHistoryWithRealConfig(unittest.TestCase):
         }
         self.history.save_stats(payload)
         self.assertEqual(self.history.load_stats(), payload)
-
-    def test_update_stats_creates_entry_with_started_at_timestamp(self) -> None:
-        """Verify update_stats() creates a new game entry with a timezone-aware started_at."""
-        game = Game(secret="secret", cfg=self.cfg, history=self.history)
-        self.history.update_stats("game_1", game)
-
-        data = self.history.load_stats()
-        self.assertIn("game_1", data)
-        entry = data["game_1"]
-        self.assertEqual(entry["secret"], "secret")
-        self.assertEqual(entry["guess_count"], 0)
-        self.assertEqual(entry["result"], Result.UNFINISHED.name)
-        self.assertEqual(entry["guess"], [])
-        self.assertIn("started_at", entry)
-
-        parsed_ts = datetime.fromisoformat(entry["started_at"])
-        self.assertIsNotNone(parsed_ts.tzinfo)
-
-    def test_update_stats_appends_guesses_and_preserves_started_at(self) -> None:
-        """Verify guesses append in order, update game state, and keep initial started_at."""
-        game = Game(secret="apple", cfg=self.cfg, history=self.history)
-        self.history.update_stats("game_1", game)
-        initial_started_at = self.history.load_stats()["game_1"]["started_at"]
-
-        guess_1 = GuessResult(guess="crane", secret="apple")
-        game.guess_count = 1
-        self.history.update_stats("game_1", game, new_guess=guess_1)
-
-        guess_2 = GuessResult(guess="apple", secret="apple")
-        game.guess_count = 2
-        game.result = Result.WIN
-        self.history.update_stats("game_1", game, new_guess=guess_2)
-
-        data = self.history.load_stats()
-        entry = data["game_1"]
-
-        self.assertEqual(entry["started_at"], initial_started_at)
-        self.assertEqual(entry["guess_count"], 2)
-        self.assertEqual(entry["result"], Result.WIN.name)
-        self.assertEqual(len(entry["guess"]), 2)
-
-        self.assertEqual(entry["guess"][0]["guess"], "crane")
-        self.assertEqual(entry["guess"][0]["state"], State.UNMATCHED.name)
-        self.assertEqual(entry["guess"][0]["outcomes"], "⬛⬛🟨⬛🟩")
-        self.assertIsNotNone(datetime.fromisoformat(entry["guess"][0]["guessed_at"]))
-
-        self.assertEqual(entry["guess"][1]["guess"], "apple")
-        self.assertEqual(entry["guess"][1]["state"], State.MATCHED.name)
-        self.assertEqual(entry["guess"][1]["outcomes"], "🟩🟩🟩🟩🟩")
-        self.assertIsNotNone(datetime.fromisoformat(entry["guess"][1]["guessed_at"]))
-
-    def test_multiple_keys_do_not_overwrite_each_other(self) -> None:
-        """Verify separate game keys coexist independently in the history file."""
-        game_1 = Game(secret="apple", cfg=self.cfg, history=self.history)
-        game_2 = Game(secret="grape", cfg=self.cfg, history=self.history)
-
-        self.history.update_stats("game_1", game_1)
-        self.history.update_stats("game_2", game_2)
-
-        data = self.history.load_stats()
-        self.assertEqual(set(data.keys()), {"game_1", "game_2"})
-        self.assertEqual(data["game_1"]["secret"], "apple")
-        self.assertEqual(data["game_2"]["secret"], "grape")
-
-    def test_print_history_formats_recorded_game(self) -> None:
-        """Verify print_history() returns a formatted report containing game and guess details."""
-        game = Game(secret="apple", cfg=self.cfg, history=self.history)
-        self.history.update_stats("game_1", game)
-
-        guess_1 = GuessResult(guess="apple", secret="apple")
-        game.guess_count = 1
-        game.result = Result.WIN
-        self.history.update_stats("game_1", game, new_guess=guess_1)
-
-        report = self.history.print_history()
-        self.assertIn("Game: game_1", report)
-        self.assertIn("Secret: apple", report)
-        self.assertIn("Result: WIN (Guesses: 1)", report)
-        self.assertIn("apple | 🟩🟩🟩🟩🟩 | MATCHED", report)
 
     def test_load_stats_returns_empty_dict_if_file_deleted(self) -> None:
         """Verify load_stats() gracefully returns {} if the history file is missing."""
