@@ -1,11 +1,16 @@
-from enum import Enum 
+from enum import Enum
+
 
 class Outcome(Enum):
-    CORRECT="correct"
-    PRESENT="present"
-    ABSENT="absent"
+    CORRECT = "correct"
+    PRESENT = "present"
+    ABSENT = "absent"
 
-class Symbol(Enum):
-    CORRECT="🟩"
-    PRESENT="🟨"
-    ABSENT="⬛"
+    @property
+    def symbol(self) -> str:
+        symbols = {
+            Outcome.CORRECT: "🟩",
+            Outcome.PRESENT: "🟨",
+            Outcome.ABSENT: "⬛",
+        }
+        return symbols[self]

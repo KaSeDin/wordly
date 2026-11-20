@@ -1,7 +1,7 @@
 from dataclasses import InitVar, dataclass, field
 from validators import validate_isinstance
 from temp.state import State 
-from temp.outcome import Outcome,Symbol
+from outcome import Outcome
 
 @dataclass
 class GuessResult:
@@ -16,7 +16,7 @@ class GuessResult:
         validate_isinstance("state",self.state,State)
         
         self.guess=self.guess.strip().lower()
-        self.secret=self.strip().lower()
+        self.secret=self.secret.strip().lower()
 
         if not self.guess or not self.secret:
             raise ValueError("guess and secret must be non-empty strings")
@@ -65,3 +65,12 @@ class GuessResult:
             raise RuntimeError(
                 f"Failed to evaluate guess {guess!r} against secret: {err}"
             ) from err
+
+    @classmethod
+    def from_guess(
+        cls,
+        guess: str,
+        secret: str,
+        state: State = State.NOT_STARTED,
+    ) -> "GuessResult":
+        return cls(guess=guess, secret=secret, state=state)
