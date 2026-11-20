@@ -4,6 +4,7 @@
 !.env.example
 words.txt
 secrets.txt
+history.json
 
 # Byte-compiled / cache / distribution artifacts
 __pycache__/

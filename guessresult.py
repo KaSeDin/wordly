@@ -1,43 +1,76 @@
+from dataclasses import InitVar, dataclass, field
+from validators import validate_isinstance
 from state import State 
-from outcome import Outcome,Symbol
+from outcome import Outcome
 
+@dataclass
 class GuessResult:
+    guess:str
+    secret:str
+    state:State=field(default=State.NOT_STARTED)
+    outcomes:list[Outcome]=field(default_factory=list,init=False)
 
-    def __init__(self,guess:str,secret:str,state:State=State.NOT_STARTED):
-        self.guess=guess
-        self.state=state
-        self.outcomes=[]
-        self._eval_guess(secret,len(secret))
+    def __post_init__(self) -> None:
+        validate_isinstance("guess",self.guess,str)
+        validate_isinstance("secret",self.secret,str)
+        validate_isinstance("state",self.state,State)
+        
+        self.guess=self.guess.strip().lower()
+        self.secret=self.secret.strip().lower()
 
-    def __str__(self):
-        visual=""
-        for outcome in self.outcomes:
-            visual+=Symbol[outcome.name].value
-        return visual
+        if not self.guess or not self.secret:
+            raise ValueError("guess and secret must be non-empty strings")
+        if len(self.guess) != len(self.secret):
+            raise ValueError(
+                f"guess length ({len(self.guess)}) must match "
+                f"secret length ({len(self.secret)})"
+            )
+        self.outcomes, self.state = self._eval_guess(self.guess, self.secret)
 
-    def _eval_guess(self,secret:str,len:int):
-        map=dict()
-        match=True
-        for i in range(len):
-            if secret[i]==self.guess[i]:
-                self.outcomes.append(Outcome.CORRECT)
-            else:
-                match=False
-                self.outcomes.append(Outcome.ABSENT)
-                if secret[i] in map:
-                    map[secret[i]]+=1
+    def __str__(self) -> str:
+        return "".join(outcome.symbol for outcome in self.outcomes)
+
+    @staticmethod
+    def _eval_guess(guess: str, secret: str) -> tuple[list[Outcome], State]:
+        try:
+            word_len = len(secret)
+            remaining_counts: dict[str, int] = {}
+            outcomes: list[Outcome] = []
+            all_matched = True
+
+            # Pass 1: mark exact positional matches and count unmatched secret letters
+            for i in range(word_len):
+                if secret[i] == guess[i]:
+                    outcomes.append(Outcome.CORRECT)
                 else:
-                    map[secret[i]]=1
-        if match:
-            self.state=State.MATCHED
-            return 
-        else:
-            self.state=State.UNMATCHED
-        for i in range(len):
-            if self.outcomes[i]==Outcome.CORRECT:
-                continue
-            if self.guess[i] in map:
-                self.outcomes[i]=Outcome.PRESENT
-                map[self.guess[i]]-=1
-                if map[self.guess[i]]==0:
-                    del map[self.guess[i]]
+                    all_matched = False
+                    outcomes.append(Outcome.ABSENT)
+                    secret_char = secret[i]
+                    remaining_counts[secret_char] = remaining_counts.get(secret_char, 0) + 1
+
+            if all_matched:
+                return outcomes, State.MATCHED
+
+            # Pass 2: mark misplaced letters (PRESENT) without exceeding remaining counts
+            for i in range(word_len):
+                if outcomes[i] == Outcome.CORRECT:
+                    continue
+                guess_char = guess[i]
+                if remaining_counts.get(guess_char, 0) > 0:
+                    outcomes[i] = Outcome.PRESENT
+                    remaining_counts[guess_char] -= 1
+
+            return outcomes, State.UNMATCHED
+        except Exception as err:
+            raise RuntimeError(
+                f"Failed to evaluate guess {guess!r} against secret: {err}"
+            ) from err
+
+    @classmethod
+    def from_guess(
+        cls,
+        guess: str,
+        secret: str,
+        state: State = State.NOT_STARTED,
+    ) -> "GuessResult":
+        return cls(guess=guess, secret=secret, state=state)
